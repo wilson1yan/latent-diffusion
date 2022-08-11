@@ -343,6 +343,7 @@ class AutoencoderKL(pl.LightningModule):
 
     def get_input(self, batch, k):
         x = batch[k]
+        x = x.flatten(end_dim=1)
         if len(x.shape) == 3:
             x = x[..., None]
         x = x.permute(0, 3, 1, 2).to(memory_format=torch.contiguous_format).float()

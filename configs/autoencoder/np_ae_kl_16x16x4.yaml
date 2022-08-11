@@ -3,22 +3,22 @@ model:
   target: ldm.models.autoencoder.AutoencoderKL
   params:
     monitor: "val/rec_loss"
-    embed_dim: 16
+    embed_dim: 4
     lossconfig:
       target: ldm.modules.losses.LPIPSWithDiscriminator
       params:
-        disc_start: 50001
+        disc_start: 100001
         kl_weight: 0.000001
         disc_weight: 0.5
 
     ddconfig:
       double_z: True
-      z_channels: 16
-      resolution: 256
+      z_channels: 4
+      resolution: 64
       in_channels: 3
       out_ch: 3
       ch: 128
-      ch_mult: [ 1,1,2,2,4]  # num_down = len(ch_mult)-1
+      ch_mult: [ 1,2, 2]  # num_down = len(ch_mult)-1
       num_res_blocks: 2
       attn_resolutions: [16]
       dropout: 0.0
@@ -27,18 +27,24 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 12
+    batch_size: 2
+    num_workers: 8
     wrap: True
     train:
-      target: ldm.data.imagenet.ImageNetSRTrain
+      target: ldm.data.np_video.NumpyVideoDatasetTrain
       params:
-        size: 256
-        degradation: pil_nearest
+        size: 64
+        data_path: /home/wilson/data/dl_maze_v2
     validation:
-      target: ldm.data.imagenet.ImageNetSRValidation
+      target: ldm.data.np_video.NumpyVideoDatasetTest
       params:
-        size: 256
-        degradation: pil_nearest
+        size: 64
+        data_path: /home/wilson/data/dl_maze_v2
+    test:
+      target: ldm.data.np_video.NumpyVideoDatasetTest
+      params:
+        size: 64
+        data_path: /home/wilson/data/dl_maze_v2
 
 lightning:
   callbacks:
